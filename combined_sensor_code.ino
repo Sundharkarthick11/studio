@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <Wire.h>
 #include <TinyGPS++.h>
 #include <MPU6050.h>
 
@@ -15,7 +14,7 @@ const char* serverName = "https://studio-mu.vercel.app/api/sensor-data-2/";
 MPU6050 mpu;
 float accelX_offset = 0, accelY_offset = 0, accelZ_offset = 0;
 
-// Previous acceleration and time
+// Previous total acceleration and time
 float prevAccel = 0;
 unsigned long prevTime = 0;
 

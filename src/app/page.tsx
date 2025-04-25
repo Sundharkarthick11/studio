@@ -40,29 +40,33 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Simulate sensor data for the POST request
-        const dummySensorData = {
-          accelerationX: 0.1,
-          accelerationY: 0.2,
-          accelerationZ: 0.3,
-          vibration: false,
-          latitude: 40.7128,
-          longitude: -74.0060,
-          speed: 0,
-          altitude: 10,
-          satellites: 10,
-        };
-        const response = await fetch('/api/sensor-data-2', {
-          method: 'POST',
-          body: JSON.stringify(dummySensorData),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch('/api/sensor-data-2', {method: "GET"});
         if (response.ok) {
-          const newData = await response.json();
-          if (newData && newData.length > 0) {
-            // Handle and update the state with the received data
+           const newData = await response.json();
+          if (newData) {
+               setSensorData(prevData => {
+              const latestData = {
+                timestamp: new Date().toLocaleTimeString(),
+                accelerationX: newData.accelerationX,
+                accelerationY: newData.accelerationY,
+                accelerationZ: newData.accelerationZ,
+                vibration: newData.vibration,
+                latitude: newData.latitude,
+                longitude: newData.longitude,
+                speed: newData.speed,
+                altitude: newData.altitude,
+                satellites: newData.satellites,
+                totalAccel: newData.totalAccel,
+                dadt: newData.dadt,
+              };
+                 if (latestData.dadt > 20 && latestData.totalAccel < 5) {
+            setMessage("⚠️ Sudden da/dt change detected! Object stopped abruptly.");
+
+          } else {
+                setMessage("");
+          }
+              return [latestData, ...prevData.slice(0, 19)];
+            });
           }
         } else {
           console.error('Failed to fetch sensor data');
@@ -70,14 +74,6 @@ export default function Home() {
       } catch (error) {
         console.error('Error fetching sensor data:', error);
         if (
-          sensorData[0]?.dadt > 20 &&
-          sensorData[0]?.totalAccel < 5
-        ) {
-          setMessage("⚠️ Sudden da/dt change detected! Object stopped abruptly.");
-
-        } else {
-        }
-      }
     };
 
     fetchData(); // Initial fetch
