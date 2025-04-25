@@ -9,7 +9,7 @@ const char* ssid = "your_SSID";
 const char* password = "your_PASSWORD";
 
 // Server details
-const char* serverName = "https://studio-mu.vercel.app/api/sensor-data-2";
+const char* serverName = "https://studio-mu.vercel.app/api/sensor-data-2/";
 
 // MPU6050
 MPU6050 mpu;
