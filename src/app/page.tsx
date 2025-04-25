@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {useState, useEffect} from 'react';
@@ -12,45 +11,67 @@ import {useToast} from "@/hooks/use-toast"
 
 interface SensorData {
   timestamp: string;
-  acceleration: number;
-  vibration: number;
+  accelerationX: number;
+  accelerationY: number;
+  accelerationZ: number;
+  vibration: boolean;
   latitude: number;
   longitude: number;
+  speed: number;
+  altitude: number;
+  satellites: number;
 }
 
-const dummyData: SensorData[] = Array.from({length: 20}, (_, i) => ({
-  timestamp: new Date(Date.now() - i * 60000).toLocaleTimeString(),
-  acceleration: Math.random() * 10,
-  vibration: Math.random() * 5,
-  latitude: 34.0522 + Math.random() * 0.1,
-  longitude: -118.2437 + Math.random() * 0.1,
-}));
-
 function generateCSV(data: SensorData[]): string {
-  const header = 'Timestamp,Acceleration,Vibration,Latitude,Longitude\n';
+  const header = 'Timestamp,AccelerationX,AccelerationY,AccelerationZ,Vibration,Latitude,Longitude,Speed,Altitude,Satellites\n';
   const rows = data.map(item =>
-    `${item.timestamp},${item.acceleration},${item.vibration},${item.latitude},${item.longitude}`
+    `${item.timestamp},${item.accelerationX},${item.accelerationY},${item.accelerationZ},${item.vibration},${item.latitude},${item.longitude},${item.speed},${item.altitude},${item.satellites}`
   );
   return header + rows.join('\n');
 }
 
 export default function Home() {
-  const [sensorData, setSensorData] = useState<SensorData[]>(dummyData);
+  const [sensorData, setSensorData] = useState<SensorData[]>([]);
   const {toast} = useToast()
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setSensorData(prevData => [
-        {
-          timestamp: new Date().toLocaleTimeString(),
-          acceleration: Math.random() * 10,
-          vibration: Math.random() * 5,
-          latitude: 34.0522 + Math.random() * 0.1,
-          longitude: -118.2437 + Math.random() * 0.1,
-        },
-        ...prevData.slice(0, 19),
-      ]);
-    }, 5000); // Update every 5 seconds
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/sensor-data', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const newData = await response.json();
+          setSensorData(prevData => [
+            {
+              timestamp: new Date().toLocaleTimeString(),
+              accelerationX: newData.accelerationX,
+              accelerationY: newData.accelerationY,
+              accelerationZ: newData.accelerationZ,
+              vibration: newData.vibration,
+              latitude: newData.latitude,
+              longitude: newData.longitude,
+              speed: newData.speed,
+              altitude: newData.altitude,
+              satellites: newData.satellites,
+            },
+            ...prevData.slice(0, 19),
+          ]);
+        } else {
+          console.error('Failed to fetch sensor data');
+        }
+      } catch (error) {
+        console.error('Error fetching sensor data:', error);
+      }
+    };
+
+    fetchData(); // Initial fetch
+
+    const intervalId = setInterval(fetchData, 5000); // Update every 5 seconds
 
     return () => clearInterval(intervalId);
   }, []);
@@ -109,7 +130,9 @@ export default function Home() {
                 <YAxis/>
                 <Tooltip/>
                 <Legend/>
-                <Line type="monotone" dataKey="acceleration" stroke="#8884d8" name="Acceleration"/>
+                <Line type="monotone" dataKey="accelerationX" stroke="#8884d8" name="Acceleration X"/>
+                <Line type="monotone" dataKey="accelerationY" stroke="#82ca9d" name="Acceleration Y"/>
+                <Line type="monotone" dataKey="accelerationZ" stroke="#ffc658" name="Acceleration Z"/>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -149,6 +172,8 @@ export default function Home() {
                 <Legend/>
                 <Line type="monotone" dataKey="latitude" stroke="#ff7300" name="Latitude"/>
                 <Line type="monotone" dataKey="longitude" stroke="#00a9ff" name="Longitude"/>
+                <Line type="monotone" dataKey="altitude" stroke="#00FF00" name="Altitude"/>
+                <Line type="monotone" dataKey="speed" stroke="#FF00FF" name="Speed"/>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -161,20 +186,30 @@ export default function Home() {
           <TableHeader>
             <TableRow>
               <TableHead>Timestamp</TableHead>
-              <TableHead>Acceleration</TableHead>
+              <TableHead>Acceleration X</TableHead>
+              <TableHead>Acceleration Y</TableHead>
+              <TableHead>Acceleration Z</TableHead>
               <TableHead>Vibration</TableHead>
               <TableHead>Latitude</TableHead>
               <TableHead>Longitude</TableHead>
+              <TableHead>Speed</TableHead>
+              <TableHead>Altitude</TableHead>
+              <TableHead>Satellites</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sensorData.map((data, index) => (
               <TableRow key={index}>
                 <TableCell>{data.timestamp}</TableCell>
-                <TableCell>{data.acceleration.toFixed(2)}</TableCell>
-                <TableCell>{data.vibration.toFixed(2)}</TableCell>
+                <TableCell>{data.accelerationX.toFixed(2)}</TableCell>
+                <TableCell>{data.accelerationY.toFixed(2)}</TableCell>
+                <TableCell>{data.accelerationZ.toFixed(2)}</TableCell>
+                <TableCell>{data.vibration ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{data.latitude.toFixed(6)}</TableCell>
                 <TableCell>{data.longitude.toFixed(6)}</TableCell>
+                 <TableCell>{data.speed.toFixed(2)}</TableCell>
+                <TableCell>{data.altitude.toFixed(2)}</TableCell>
+                <TableCell>{data.satellites}</TableCell>
               </TableRow>
             ))}
           </TableBody>

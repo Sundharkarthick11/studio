@@ -9,19 +9,19 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 24 7.7% 14.9%;
+    --background: 255 255 255; /* Light Gray #EEEEEE */
+    --foreground: 26 18% 8%;  /* Dark text */
     --card: 0 0% 100%;
     --card-foreground: 24 7.7% 14.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 24 7.7% 14.9%;
     --primary: 225 58.8% 20.4%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
+    --secondary: 210 40% 96.1%; /* Light Gray #EEEEEE */
     --secondary-foreground: 24 7.7% 14.9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 172.7 100% 26.1%;
+    --accent: 173 100% 27%; /* Teal #009688 */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -34,9 +34,9 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-background: 210 40% 96.1%; /* Light Gray #EEEEEE */
+    --sidebar-foreground: 26 18% 8%;
+    --sidebar-primary: 225 58.8% 20.4%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
@@ -44,19 +44,19 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 24 7.7% 14.9%;
+    --background: 26 18% 8%;  /* Dark Blue #1A237E */
     --foreground: 0 0% 98%;
-    --card: 24 7.7% 14.9%;
+    --card: 26 18% 8%;
     --card-foreground: 0 0% 98%;
-    --popover: 24 7.7% 14.9%;
+    --popover: 26 18% 8%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 225 58.8% 20.4%;
-    --secondary: 0 0% 14.9%;
+    --secondary: 26 18% 8%; /* Dark Blue #1A237E */
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
+    --muted: 26 18% 8%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 172.7 100% 26.1%;
+    --accent: 173 100% 27%; /* Teal #009688 */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -68,7 +68,7 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
+    --sidebar-background:  26 18% 8%; /* Dark Blue #1A237E */
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
