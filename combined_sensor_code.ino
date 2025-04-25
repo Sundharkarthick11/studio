@@ -4,8 +4,8 @@
 #include <MPU6050.h>
 
 // WiFi credentials
-const char* ssid = "your_SSID";
-const char* password = "your_PASSWORD";
+const char* ssid = "Virus_31";
+const char* password = "fbhb6463";
 
 // Server details
 const char* serverName = "https://studio-mu.vercel.app/api/sensor-data-2/";
