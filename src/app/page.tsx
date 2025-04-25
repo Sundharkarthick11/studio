@@ -20,6 +20,8 @@ interface SensorData {
   speed: number;
   altitude: number;
   satellites: number;
+  totalAccel: number;
+  dadt: number;
 }
 
 function generateCSV(data: SensorData[]): string {
@@ -34,38 +36,64 @@ export default function Home() {
   const [sensorData, setSensorData] = useState<SensorData[]>([]);
   const {toast} = useToast()
 
+  const [message, setMessage] = useState<string | null>(null);
   useEffect(() => {
     const fetchData = async () => {
+      let newData: any;
       try {
         const response = await fetch('/api/sensor-data', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-        });
-
+        }); 
         if (response.ok) {
-          const newData = await response.json();
-          setSensorData(prevData => [
-            {
-              timestamp: new Date().toLocaleTimeString(),
-              accelerationX: newData.accelerationX,
-              accelerationY: newData.accelerationY,
-              accelerationZ: newData.accelerationZ,
-              vibration: newData.vibration,
-              latitude: newData.latitude,
-              longitude: newData.longitude,
-              speed: newData.speed,
-              altitude: newData.altitude,
-              satellites: newData.satellites,
-            },
-            ...prevData.slice(0, 19),
-          ]);
+           newData = await response.json();
+          if (newData && newData.length > 0) {
+            setSensorData(prevData => {
+              const latestData = {
+                timestamp: new Date().toLocaleTimeString(),
+                accelerationX: newData[0].accelerationX,
+                accelerationY: newData[0].accelerationY,
+                accelerationZ: newData[0].accelerationZ,
+                vibration: newData[0].vibration,
+                latitude: newData[0].latitude,
+                longitude: newData[0].longitude,
+                speed: newData[0].speed,
+                altitude: newData[0].altitude,
+                satellites: newData[0].satellites,
+                totalAccel: newData[0].totalAccel,
+                dadt: newData[0].dadt,
+              };
+              return [latestData, ...prevData.slice(0, 19)];
+            });
+          }
         } else {
           console.error('Failed to fetch sensor data');
         }
       } catch (error) {
+
         console.error('Error fetching sensor data:', error);
+      }
+      finally {
+        if (
+          sensorData.length > 0 &&
+          sensorData[0]?.dadt !== undefined &&
+          sensorData[0]?.totalAccel !== undefined
+          
+        ) {
+          
+        
+        if (
+          sensorData[0]?.dadt > 20 &&
+          sensorData[0]?.totalAccel < 5
+        ) {
+          setMessage("⚠️ Sudden da/dt change detected! Object stopped abruptly.");
+
+        } else {
+          setMessage("");
+        }
+        }
       }
     };
 
@@ -101,7 +129,7 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">SensorStats</h1>
+        <h1 className="text-2xl font-bold">Sensor Status</h1>
         <div className="space-x-2">
           <Button variant="outline" size="sm" onClick={handleCopy}>
             <Copy className="mr-2 h-4 w-4"/>
@@ -114,6 +142,8 @@ export default function Home() {
         </div>
       </header>
 
+      <div className="text-red-500">{message}</div>
+
       <Separator className="mb-4"/>
 
       <section className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -122,19 +152,38 @@ export default function Home() {
             <CardTitle>Acceleration</CardTitle>
             <CardDescription>Real-time acceleration data</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={sensorData}>
+          
+          <CardContent >
+          <div className="flex items-center justify-between">
+          <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={sensorData.length > 0 ? sensorData : []}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="timestamp"/>
                 <YAxis/>
                 <Tooltip/>
                 <Legend/>
-                <Line type="monotone" dataKey="accelerationX" stroke="#8884d8" name="Acceleration X"/>
+                 <Line type="monotone" dataKey="accelerationX" stroke="#8884d8" name="Acceleration X"/>
                 <Line type="monotone" dataKey="accelerationY" stroke="#82ca9d" name="Acceleration Y"/>
                 <Line type="monotone" dataKey="accelerationZ" stroke="#ffc658" name="Acceleration Z"/>
               </LineChart>
             </ResponsiveContainer>
+            
+            <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={sensorData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="timestamp" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                        type="monotone"
+                        dataKey="dadt"
+                        stroke="#82ca9d"
+                        name="Rate of change of acceleration"
+                    />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
           </CardContent>
         </Card>
 
@@ -143,8 +192,8 @@ export default function Home() {
             <CardTitle>Vibration</CardTitle>
             <CardDescription>Real-time vibration data</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+          <CardContent> 
+           <ResponsiveContainer width="100%" height={200}>
               <LineChart data={sensorData}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="timestamp"/>
@@ -155,7 +204,7 @@ export default function Home() {
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </Card> 
 
         <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader>
@@ -189,6 +238,8 @@ export default function Home() {
               <TableHead>Acceleration X</TableHead>
               <TableHead>Acceleration Y</TableHead>
               <TableHead>Acceleration Z</TableHead>
+              <TableHead>Total Acceleration</TableHead>
+              <TableHead>da/dt</TableHead>
               <TableHead>Vibration</TableHead>
               <TableHead>Latitude</TableHead>
               <TableHead>Longitude</TableHead>
@@ -204,6 +255,8 @@ export default function Home() {
                 <TableCell>{data.accelerationX.toFixed(2)}</TableCell>
                 <TableCell>{data.accelerationY.toFixed(2)}</TableCell>
                 <TableCell>{data.accelerationZ.toFixed(2)}</TableCell>
+                <TableCell>{data.totalAccel.toFixed(2)}</TableCell>
+                <TableCell>{data.dadt.toFixed(2)}</TableCell>
                 <TableCell>{data.vibration ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{data.latitude.toFixed(6)}</TableCell>
                 <TableCell>{data.longitude.toFixed(6)}</TableCell>

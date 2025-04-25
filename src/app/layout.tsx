@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'SensorStats',
+  title: 'Sensor Status',
   description: 'Real-time sensor data and visualization',
 };
 
