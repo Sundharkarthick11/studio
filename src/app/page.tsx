@@ -28,7 +28,7 @@ function generateCSV(data: SensorData[]): string {
   const header = 'Timestamp,AccelerationX,AccelerationY,AccelerationZ,Vibration,Latitude,Longitude,Speed,Altitude,Satellites\n';
   const rows = data.map(item =>
     `${item.timestamp},${item.accelerationX},${item.accelerationY},${item.accelerationZ},${item.vibration},${item.latitude},${item.longitude},${item.speed},${item.altitude},${item.satellites}`
-  );
+  )
   return header + rows.join('\n');
 }
 
@@ -39,51 +39,36 @@ export default function Home() {
   const [message, setMessage] = useState<string | null>(null);
   useEffect(() => {
     const fetchData = async () => {
-      let newData: any;
       try {
-        const response = await fetch('/api/sensor-data', {
-          method: 'GET',
+        // Simulate sensor data for the POST request
+        const dummySensorData = {
+          accelerationX: 0.1,
+          accelerationY: 0.2,
+          accelerationZ: 0.3,
+          vibration: false,
+          latitude: 40.7128,
+          longitude: -74.0060,
+          speed: 0,
+          altitude: 10,
+          satellites: 10,
+        };
+        const response = await fetch('/api/sensor-data-2', {
+          method: 'POST',
+          body: JSON.stringify(dummySensorData),
           headers: {
             'Content-Type': 'application/json',
           },
-        }); 
+        });
         if (response.ok) {
-           newData = await response.json();
+          const newData = await response.json();
           if (newData && newData.length > 0) {
-            setSensorData(prevData => {
-              const latestData = {
-                timestamp: new Date().toLocaleTimeString(),
-                accelerationX: newData[0].accelerationX,
-                accelerationY: newData[0].accelerationY,
-                accelerationZ: newData[0].accelerationZ,
-                vibration: newData[0].vibration,
-                latitude: newData[0].latitude,
-                longitude: newData[0].longitude,
-                speed: newData[0].speed,
-                altitude: newData[0].altitude,
-                satellites: newData[0].satellites,
-                totalAccel: newData[0].totalAccel,
-                dadt: newData[0].dadt,
-              };
-              return [latestData, ...prevData.slice(0, 19)];
-            });
+            // Handle and update the state with the received data
           }
         } else {
           console.error('Failed to fetch sensor data');
         }
       } catch (error) {
-
         console.error('Error fetching sensor data:', error);
-      }
-      finally {
-        if (
-          sensorData.length > 0 &&
-          sensorData[0]?.dadt !== undefined &&
-          sensorData[0]?.totalAccel !== undefined
-          
-        ) {
-          
-        
         if (
           sensorData[0]?.dadt > 20 &&
           sensorData[0]?.totalAccel < 5
@@ -91,8 +76,6 @@ export default function Home() {
           setMessage("⚠️ Sudden da/dt change detected! Object stopped abruptly.");
 
         } else {
-          setMessage("");
-        }
         }
       }
     };
