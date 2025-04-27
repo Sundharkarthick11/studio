@@ -58,14 +58,6 @@ export default function Home() {
                 satellites: newData.satellites,
                 totalAccel: newData.totalAccel,
                 dadt: newData.dadt,
-              };
-                 if (latestData.dadt > 20 && latestData.totalAccel < 5) {
-            setMessage("⚠️ Sudden da/dt change detected! Object stopped abruptly.");
-
-          } else {
-                setMessage("");
-          }
-              return [latestData, ...prevData.slice(0, 19)];
             });
           }
         } else {
@@ -74,15 +66,14 @@ export default function Home() {
       } catch (error) {
         console.error('Error fetching sensor data:', error);
       }
+        if (
+          sensorData.length > 0 &&
+          sensorData[0]?.dadt !== undefined &&
+          sensorData[0]?.totalAccel !== undefined
+        ) {
+          setMessage(sensorData[0]?.dadt > 20 && sensorData[0]?.totalAccel < 5 ? "⚠️ Sudden da/dt change detected! Object stopped abruptly." : "")
+        }
     };
-
-    fetchData(); // Initial fetch
-
-    const intervalId = setInterval(fetchData, 5000); // Update every 5 seconds
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   const handleDownload = () => {
     const csvData = generateCSV(sensorData);
     const blob = new Blob([csvData], {type: 'text/csv'});
@@ -251,5 +242,13 @@ export default function Home() {
     </div>
   );
 }
+
+    fetchData(); // Initial fetch
+
+    const intervalId = setInterval(fetchData, 5000); // Update every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, []);
+
 
 
