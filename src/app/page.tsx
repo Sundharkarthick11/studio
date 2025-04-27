@@ -73,7 +73,7 @@ export default function Home() {
         }
       } catch (error) {
         console.error('Error fetching sensor data:', error);
-        if (
+      }
     };
 
     fetchData(); // Initial fetch
@@ -251,3 +251,4 @@ export default function Home() {
     </div>
   );
 }
+
