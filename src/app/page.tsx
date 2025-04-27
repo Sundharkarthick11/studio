@@ -57,7 +57,7 @@ export default function Home() {
                 altitude: newData.altitude,
                 satellites: newData.satellites,
                 totalAccel: newData.totalAccel,
-                dadt: newData.dadt,
+                dadt: newData.dadt
             });
           }
         } else {
